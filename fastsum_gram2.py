@@ -20,14 +20,15 @@ def Preprocess_Raw(raw_text):
     raw_text.replace('<P>',' ')
     sents = sent_tokenize(raw_text)
     #print(sents)
-    unraw_text = raw_text.replace('<P>','').replace('</P>', '').replace('\n', '').replace('\t', '').lower()
+    unraw_text = raw_text.replace('<P>',' ').replace('</P>', ' ').replace('\n', ' ').replace('\t', ' ').replace('-', ' ').lower()
     unraw_text = re.sub('[^a-zA-Z0-9 ]', '', unraw_text) #去标点符号
     unraw_words = nltk.word_tokenize(unraw_text)
     for i in range(len(sents)):
-        sents[i] = sents[i].replace('<P>','')
-        sents[i] = sents[i].replace('</P>', '')
-        sents[i] = sents[i].replace('\n', '')
-        sents[i] = sents[i].replace('\t', '')
+        sents[i] = sents[i].replace('<P>',' ')
+        sents[i] = sents[i].replace('</P>', ' ')
+        sents[i] = sents[i].replace('\n', ' ')
+        sents[i] = sents[i].replace('\t', ' ')
+        sents[i] = sents[i].replace('-', ' ')
         sents[i] = sents[i].lower()        #sent[i] string类型
         #print(i)
         #print(sents[i])
@@ -43,18 +44,20 @@ def Preprocess_Raw(raw_text):
     unraw_words1 = list( nltk.bigrams(unraw_words1))
     return sents,unraw_words1
 
+#无去词干化
 def Preprocess_Raw_one(raw_text):
     raw_text.replace('<P>',' ')
     sents = sent_tokenize(raw_text)
     #print(sents)
-    unraw_text = raw_text.replace('<P>','').replace('</P>', '').replace('\n', '').replace('\t', '').lower()
+    unraw_text = raw_text.replace('<P>',' ').replace('</P>', ' ').replace('\n', ' ').replace('\t', ' ').replace('-', ' ').lower()
     unraw_text = re.sub('[^a-zA-Z0-9 ]', '', unraw_text) #去标点符号
     unraw_words = nltk.word_tokenize(unraw_text)
     for i in range(len(sents)):
-        sents[i] = sents[i].replace('<P>','')
-        sents[i] = sents[i].replace('</P>', '')
-        sents[i] = sents[i].replace('\n', '')
-        sents[i] = sents[i].replace('\t', '')
+        sents[i] = sents[i].replace('<P>',' ')
+        sents[i] = sents[i].replace('</P>', ' ')
+        sents[i] = sents[i].replace('\n', ' ')
+        sents[i] = sents[i].replace('\t', ' ')
+        sents[i] = sents[i].replace('-', ' ')
         sents[i] = sents[i].lower()        #sent[i] string类型
         #print(i)
         #print(sents[i])
@@ -539,7 +542,7 @@ def getsomething():
 
     data_predict = SVR_data(all_sample,combine_sents_score,all_test_data)
     return data_predict
-#642-661  用于训练
+# 642-661  用于训练
 # data_predict = getsomething()
 #
 # print("len(data_predict) = ",len(data_predict))
@@ -551,9 +554,9 @@ def getsomething():
 #
 # #print(data_predict)
 #
-# fl = open('D:\\李卓聪\\save_list.txt', 'w')
+#
 # for j in range(len(data_predict)):
-#     save_file = "D:\\李卓聪\\save_list_2_" + str(j) + ".txt"
+#     save_file = "D:\\李卓聪\\save_file\\fastsum2\\save_" + str(j) + ".txt"
 #     fl = open(save_file, 'w')
 #     for i in data_predict[j]:
 #         fl.write(str(i))
@@ -567,7 +570,7 @@ print("finish saving!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
 # 读取文档中的weight值，输入第i篇document，返回float型的数组
 def read_weight_file(i):
-    save_file = "D:\\李卓聪\\save_list_2_" + str(i) + ".txt"
+    save_file = "D:\\李卓聪\\save_file\\fastsum2\\save_list_2_" + str(i) + ".txt"
     f = open(save_file, 'r')
     weight_list = f.readlines()
     weight_list_adjust = [0] * len(weight_list)
@@ -601,32 +604,11 @@ def get_sents_together():
                 sents_together[i].extend(sents)  # 将每个document的句子合在一起
     return sents_together
 
-# def get_summary(k):
-#     sents_together = get_sents_together()
-#     weight_list = read_weight_file(k)
-#     weight_sorted = sorted(weight_list,reverse = True)
-#     num = weight_list.index(weight_sorted[0])
-#     summary = [[]] * 1
-#     summary[0] = sents_together[k][num]
-#     summary_word = sents_together[k][num]
-#     total_word = len(nltk.word_tokenize(sents_together[k][num]))
-#     print(total_word)
-#     i = 1
-#     while(total_word <= 250):
-#         num = weight_list.index(weight_sorted[i])
-#         summary.append(sents_together[k][num])
-#         summary_word += sents_together[k][num]
-#         total_word += len(nltk.word_tokenize(sents_together[k][num]))
-#         print(total_word)
-#         i += 1
-#     #print(summary)
-#     return summary,summary_word
-
 def get_summary(k):
     sents_together = get_sents_together()
     weight_list = read_weight_file(k)
     weight_sorted = sorted(weight_list,reverse = True)
-    num = random.randint(0, len(weight_list))
+    num = weight_list.index(weight_sorted[0])
     summary = [[]] * 1
     summary[0] = sents_together[k][num]
     summary_word = sents_together[k][num]
@@ -634,14 +616,35 @@ def get_summary(k):
     print(total_word)
     i = 1
     while(total_word <= 250):
-        num = random.randint(0,len(weight_list))
+        num = weight_list.index(weight_sorted[i])
         summary.append(sents_together[k][num])
         summary_word += sents_together[k][num]
         total_word += len(nltk.word_tokenize(sents_together[k][num]))
-        #print(total_word)
+        print(total_word)
         i += 1
     #print(summary)
     return summary,summary_word
+
+# def get_summary(k):
+#     sents_together = get_sents_together()
+#     weight_list = read_weight_file(k)
+#     weight_sorted = sorted(weight_list,reverse = True)
+#     num = random.randint(0, len(weight_list))
+#     summary = [[]] * 1
+#     summary[0] = sents_together[k][num]
+#     summary_word = sents_together[k][num]
+#     total_word = len(nltk.word_tokenize(sents_together[k][num]))
+#     print(total_word)
+#     i = 1
+#     while(total_word <= 250):
+#         num = random.randint(0,len(weight_list))
+#         summary.append(sents_together[k][num])
+#         summary_word += sents_together[k][num]
+#         total_word += len(nltk.word_tokenize(sents_together[k][num]))
+#         #print(total_word)
+#         i += 1
+#     #print(summary)
+#     return summary,summary_word
 
 # All summaries were truncated to 250 words before being evaluated
 rouge_all = 0
